@@ -1,45 +1,36 @@
 class Solution {
-    
-    class Pair {
-        double sectionLength;
-        int index;
-
-        Pair(double sectionLength, int index) {
-            this.sectionLength = sectionLength;
-            this.index = index;
-        }
-    }
-    
     public double minMaxDist(int[] stations, int k) {
+        // code here
         int n=stations.length;
-         if(n==1) return 0;
-        int [] howMany=new int[stations.length-1];
-        
-       PriorityQueue<Pair> pq = new PriorityQueue<>(
-           (a, b) -> Double.compare(b.sectionLength, a.sectionLength)
-       );
-       
-        
-        for (int i = 0; i < n - 1; i++) {
-
-            double diff = stations[i + 1] - stations[i];
-
-            double sectionLength = diff / (howMany[i] + 1);
-
-            pq.offer(new Pair(sectionLength, i));
+        double low=0;
+        double high=0;
+        for(int i=1;i<n;i++){
+            high=Math.max(high,stations[i]-stations[i-1]);
         }
-
-        
-        for(int i=0;i<k;i++){
-           Pair top=pq.poll();
-           int index=top.index;
-           howMany[index]++;
-           double diff=stations[index+1]-stations[index];
-           double newSection=diff/(howMany[index]+1);
-           
-           pq.offer(new Pair(newSection,index));
+        double gap=1e-6;
+        while(high-low>gap){
+            double mid=(low+high)/2.0;
+            int cnt=noOfGasStationsRequired(stations,mid);
+            if(cnt>k){
+                low=mid;
+            }
+            else{
+                high=mid;
+            }
         }
-        return pq.peek().sectionLength;
+        return high;
     }
-    
+    private int noOfGasStationsRequired(int[] stations,double dist){
+        int cnt=0;
+        
+        for(int i=1;i<stations.length;i++){
+            int numbersInBetween=(int)((stations[i]-stations[i-1])/dist);
+            
+            if((stations[i]-stations[i-1])/dist==numbersInBetween){
+                numbersInBetween--;
+            }
+            cnt+=numbersInBetween;
+        }
+        return cnt;
+    }
 }
